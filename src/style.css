@@ -1,0 +1,67 @@
+/* Official Ravi v2.3 web fonts (Fontiran), same files as the Iran map project. */
+@font-face {
+  font-family: 'Ravi';
+  src: url('/fonts/Ravi-Regular.woff2') format('woff2'), url('/fonts/Ravi-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ravi';
+  src: url('/fonts/Ravi-Medium.woff2') format('woff2'), url('/fonts/Ravi-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --ink: #16171a;
+  --blu: #4e91e6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #dcdde0;
+  color: var(--ink);
+  font-family: 'Ravi', system-ui, sans-serif;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: manipulation;
+}
+
+#scene:focus-visible {
+  outline: 3px solid var(--blu);
+  outline-offset: -6px;
+}
+
+/* The one line of text on the page: top-right corner. */
+.top {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  display: flex;
+  justify-content: flex-start; /* the page is right-to-left, so "start" is the right side */
+  padding: 28px 32px;
+  pointer-events: none;
+}
+
+.hint {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+}
