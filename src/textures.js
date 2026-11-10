@@ -119,7 +119,7 @@ export function backgroundTexture() {
 export function elasticTexture(repeat) {
   const [c, ctx] = makeCanvas(256, 256);
   const { width: w, height: h } = c;
-  ctx.fillStyle = '#15142b';
+  ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, 0, w, h);
 
   // Ribs along the length: a light crest and a dark groove, repeated across the width.
@@ -127,10 +127,10 @@ export function elasticTexture(repeat) {
   const rib = h / ribs;
   for (let i = 0; i < ribs; i++) {
     const g = ctx.createLinearGradient(0, i * rib, 0, (i + 1) * rib);
-    g.addColorStop(0, '#08071a');
-    g.addColorStop(0.45, '#26254a');
-    g.addColorStop(0.75, '#1c1b3a');
-    g.addColorStop(1, '#08071a');
+    g.addColorStop(0, '#050505');
+    g.addColorStop(0.45, '#2e2e2e');
+    g.addColorStop(0.75, '#232323');
+    g.addColorStop(1, '#050505');
     ctx.fillStyle = g;
     ctx.fillRect(0, i * rib, w, rib);
   }
@@ -144,7 +144,7 @@ export function elasticTexture(repeat) {
   }
 
   // Bound edges.
-  ctx.fillStyle = '#0b0a1e';
+  ctx.fillStyle = '#0d0d0d';
   ctx.fillRect(0, 0, w, 5);
   ctx.fillRect(0, h - 5, w, 5);
 

@@ -132,11 +132,11 @@ async function init() {
       // A soft sheen keeps the edges readable; kept low so the colour stays near-black.
       sheen: 0.35,
       sheenRoughness: 0.7,
-      sheenColor: new THREE.Color(0x8a89a8),
+      sheenColor: new THREE.Color(0x8a8a8a),
       bumpMap: grain,
       bumpScale: 0.7,
     });
-  const fabric = felt(0x0d0c22); // Hamzeh's pick: near-black navy
+  const fabric = felt(0x0a0a0a); // Hamzeh's pick: near-black
   // The band and the straps are one piece of elastic, so they share the same weave.
   const elastic = (repeat) => {
     const weave = elasticTexture(repeat);
@@ -148,7 +148,7 @@ async function init() {
       metalness: 0,
       sheen: 0.3,
       sheenRoughness: 0.6,
-      sheenColor: new THREE.Color(0x8a89a8),
+      sheenColor: new THREE.Color(0x8a8a8a),
     });
   };
   const bandMaterial = elastic(26);
@@ -197,7 +197,7 @@ async function init() {
     bevelSegments: 3,
     curveSegments: 10,
   });
-  const patchMaterial = felt(0x0d0c22);
+  const patchMaterial = felt(0x0a0a0a);
   const patch = new THREE.Mesh(patchGeometry, patchMaterial);
   patch.position.set(0, HOLDER.h * 0.05 + PATCH.h / 2, HOLDER.t / 2);
   frontHinge.add(patch);
