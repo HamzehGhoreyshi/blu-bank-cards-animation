@@ -555,7 +555,7 @@ async function init() {
 init();
 
 // Footer: live GitHub star count (the button reads "Star" until this loads).
-fetch('https://api.github.com/repos/HamzehGhoreyshi/blue-bank-cards-animation')
+fetch('https://api.github.com/repos/HamzehGhoreyshi/blu-bank-cards-animation')
   .then((r) => (r.ok ? r.json() : Promise.reject()))
   .then((repo) => {
     document.querySelector('.star-count').textContent = `Star · ${repo.stargazers_count}`;
