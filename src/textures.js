@@ -102,29 +102,16 @@ export function grainTexture() {
   return t;
 }
 
-// Soft studio backdrop. `draw(t)` repaints it: t = 0 light page, t = 1 dark page,
-// anything between is a blend (used while the theme switch animates).
-const BACKDROP = {
-  light: ['#fafafb', '#eeeff1', '#d9dadd'],
-  dark: ['#2a2c35', '#1c1d24', '#141519'], // same night colours as the day/night toggle
-};
+// Soft studio backdrop (stays the same in both wallet colours).
 export function backgroundTexture() {
-  const [c, ctx] = makeCanvas(512, 512);
-  const texture = toTexture(c);
-  const a = new THREE.Color();
-  const b = new THREE.Color();
-  const mix = (i, t) => '#' + a.set(BACKDROP.light[i]).lerp(b.set(BACKDROP.dark[i]), t).getHexString();
-  const draw = (t) => {
-    const g = ctx.createRadialGradient(256, 215, 30, 256, 256, 380);
-    g.addColorStop(0, mix(0, t));
-    g.addColorStop(0.55, mix(1, t));
-    g.addColorStop(1, mix(2, t));
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 512, 512);
-    texture.needsUpdate = true;
-  };
-  draw(0);
-  return { texture, draw };
+  const [c, ctx] = makeCanvas(1024, 1024);
+  const g = ctx.createRadialGradient(512, 430, 60, 512, 512, 760);
+  g.addColorStop(0, '#fafafb');
+  g.addColorStop(0.55, '#eeeff1');
+  g.addColorStop(1, '#d9dadd');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 1024, 1024);
+  return toTexture(c);
 }
 
 // Woven elastic: raised ribs running along the band, crossed by a fine weave,

@@ -1,6 +1,6 @@
 /* Day/night switch, copied from the interactive-day-night-toggle experiment and
-   shrunk to 64px. Day (sun) = light page + black wallet, night (moon) = dark page +
-   white wallet. The state lives on <body>: .is-day / .is-night. */
+   shrunk to 64px. Day (sun) = black wallet, night (moon) = white wallet; the page
+   stays light. The state lives on <body>: .is-day / .is-night. */
 :root {
   --bezel-day: #f6f6f6;
   --bezel-night: #2c2e37;

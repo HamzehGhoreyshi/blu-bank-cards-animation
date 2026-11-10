@@ -96,8 +96,7 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 async function init() {
   const cardFront = await loadCardFronts();
 
-  const backdrop = backgroundTexture();
-  scene.background = backdrop.texture;
+  scene.background = backgroundTexture();
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = 0.85;
@@ -225,8 +224,8 @@ async function init() {
   }).map((decal) => decal.material);
   const logoMeshes = frontHinge.children.filter((o) => logos.includes(o.material));
 
-  // Light/dark theme. t = 0: light page, black wallet (default). t = 1: dark page,
-  // white wallet. The scene eases toward the target so it fades with the toggle.
+  // Wallet colour switch. t = 0: black wallet (default). t = 1: white wallet.
+  // The page background stays light in both. The scene eases toward the target so it fades with the toggle.
   const THEME = {
     body: [new THREE.Color(0x0a0a0a), new THREE.Color(0xf0f0f0)],
     patch: [new THREE.Color(0x161616), new THREE.Color(0xe2e2e2)],
@@ -241,7 +240,6 @@ async function init() {
     strapMaterial.color.lerpColors(THEME.elastic[0], THEME.elastic[1], t);
     logos[0].opacity = 1 - t;
     logos[1].opacity = t;
-    backdrop.draw(t);
   }
   applyTheme(0);
   document.addEventListener('themechange', (e) => {

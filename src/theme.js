@@ -1,7 +1,7 @@
 // Light/dark switch (the day/night toggle from the interactive-day-night-toggle
-// experiment). Day (sun) is the default: light page, black wallet. Night (moon):
-// dark page, white wallet. The state lives on <body> as .is-day / .is-night, and a
-// 'themechange' event tells the 3D scene to fade its colours.
+// experiment). Day (sun) is the default: black wallet. Night (moon): white wallet.
+// Only the wallet changes; the page stays light. The state lives on <body> as
+// .is-day / .is-night, and a 'themechange' event tells the 3D scene to fade the wallet.
 const body = document.body;
 const toggle = document.querySelector('.toggle');
 const knob = toggle.querySelector('.knob');
