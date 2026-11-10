@@ -96,7 +96,8 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 async function init() {
   const cardFront = await loadCardFronts();
 
-  scene.background = backgroundTexture();
+  const backdrop = backgroundTexture();
+  scene.background = backdrop.texture;
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = 0.85;
@@ -123,7 +124,8 @@ async function init() {
 
   // ---------- holder ----------
   const grain = grainTexture();
-  // Dark felt, smooth and matte. Two shades: body and raised patch.
+  // Smooth matte felt. Two shades: body and raised patch. Colours follow the
+  // light/dark switch (see THEME below).
   const felt = (color) =>
     new THREE.MeshPhysicalMaterial({
       color,
@@ -136,7 +138,7 @@ async function init() {
       bumpMap: grain,
       bumpScale: 0.7,
     });
-  const fabric = felt(0x0a0a0a); // Hamzeh's pick: near-black
+  const fabric = felt(0x0a0a0a);
   // The band and the straps are one piece of elastic, so they share the same weave.
   const elastic = (repeat) => {
     const weave = elasticTexture(repeat);
@@ -197,23 +199,55 @@ async function init() {
     bevelSegments: 3,
     curveSegments: 10,
   });
-  const patchMaterial = felt(0x161616); // a touch lighter than the body
+  const patchMaterial = felt(0x161616);
   const patch = new THREE.Mesh(patchGeometry, patchMaterial);
   patch.position.set(0, HOLDER.h * 0.05 + PATCH.h / 2, HOLDER.t / 2);
   frontHinge.add(patch);
 
-  const decal = new THREE.Mesh(
-    fitUV(new THREE.ShapeGeometry(roundedRectShape(PATCH.w, PATCH.h, PATCH.r), 10), PATCH.w, PATCH.h),
-    new THREE.MeshPhysicalMaterial({
-      map: holderLogoTexture(PATCH.w / PATCH.h),
-      transparent: true,
-      roughness: 0.6,
-      polygonOffset: true,
-      polygonOffsetFactor: -2,
-    })
-  );
-  decal.position.set(0, patch.position.y, HOLDER.t / 2 + 0.056);
-  frontHinge.add(decal);
+  // Two logo prints on the patch: all-white (black wallet) and the official
+  // blue (white wallet). The theme switch cross-fades between them.
+  const logoGeometry = fitUV(new THREE.ShapeGeometry(roundedRectShape(PATCH.w, PATCH.h, PATCH.r), 10), PATCH.w, PATCH.h);
+  const logos = [true, false].map((white, i) => {
+    const decal = new THREE.Mesh(
+      logoGeometry,
+      new THREE.MeshPhysicalMaterial({
+        map: holderLogoTexture(PATCH.w / PATCH.h, white),
+        transparent: true,
+        depthWrite: false,
+        roughness: 0.6,
+        polygonOffset: true,
+        polygonOffsetFactor: -2 - i,
+      })
+    );
+    decal.position.set(0, patch.position.y, HOLDER.t / 2 + 0.056);
+    frontHinge.add(decal);
+    return decal;
+  }).map((decal) => decal.material);
+  const logoMeshes = frontHinge.children.filter((o) => logos.includes(o.material));
+
+  // Light/dark theme. t = 0: light page, black wallet (default). t = 1: dark page,
+  // white wallet. The scene eases toward the target so it fades with the toggle.
+  const THEME = {
+    body: [new THREE.Color(0x0a0a0a), new THREE.Color(0xf0f0f0)],
+    patch: [new THREE.Color(0x161616), new THREE.Color(0xe2e2e2)],
+    elastic: [new THREE.Color(0x454545), new THREE.Color(0xffffff)],
+  };
+  let themeT = 0;
+  let themeTarget = 0;
+  function applyTheme(t) {
+    fabric.color.lerpColors(THEME.body[0], THEME.body[1], t);
+    patchMaterial.color.lerpColors(THEME.patch[0], THEME.patch[1], t);
+    bandMaterial.color.lerpColors(THEME.elastic[0], THEME.elastic[1], t);
+    strapMaterial.color.lerpColors(THEME.elastic[0], THEME.elastic[1], t);
+    logos[0].opacity = 1 - t;
+    logos[1].opacity = t;
+    backdrop.draw(t);
+  }
+  applyTheme(0);
+  document.addEventListener('themechange', (e) => {
+    themeTarget = e.detail.dark ? 1 : 0;
+    if (reducedMotion) applyTheme((themeT = themeTarget));
+  });
 
   // Rounded spine joining the two panels at the bottom.
   const spine = new THREE.Mesh(
@@ -383,7 +417,7 @@ async function init() {
       o.receiveShadow = true;
     }
   });
-  decal.castShadow = false;
+  logoMeshes.forEach((m) => (m.castShadow = false)); // prints on the patch cast no shadow
 
   // ---------- state + interaction ----------
   let isOpen = false;
@@ -514,6 +548,13 @@ async function init() {
       k.wrap.scale.setScalar(Math.max(0.0001, out));
       // Tokens turn only while they travel, then rest at a fixed angle.
       k.wrap.rotation.set(k.rest.x, k.rest.y + (1 - out) * k.spin * 4, k.rest.z);
+    }
+
+    // Theme fade (~0.9 s, same as the toggle's own transition).
+    if (themeT !== themeTarget) {
+      themeT += (themeTarget - themeT) * 0.08;
+      if (Math.abs(themeTarget - themeT) < 0.002) themeT = themeTarget;
+      applyTheme(themeT);
     }
 
     // Pointer parallax: the object leans toward the cursor. Nothing moves on its own.

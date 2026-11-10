@@ -55,7 +55,9 @@ body {
   inset-inline: 0;
   top: 0;
   display: flex;
-  justify-content: flex-start; /* the page is right-to-left, so "start" is the right side */
+  justify-content: space-between; /* hint on the right (RTL start), toggle on the left */
+  align-items: center;
+  gap: 16px;
   padding: 28px 32px;
   pointer-events: none;
 }
@@ -65,7 +67,18 @@ body {
   font-size: 18px;
   font-weight: 500;
   color: var(--ink);
+  transition: color 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+.top .toggle { order: 2; }
+
+/* ---------- Dark mode (toggle on: moon) ---------- */
+body.is-night { background: #1c1d24; }
+.is-night .hint { color: #f2f2f4; }
+.credits-sig { transition: background-color 0.9s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.9s; }
+.is-night .credits-sig { background: #141519; border-top-color: rgba(255, 255, 255, 0.06); color: #6b6e78; }
+.is-night .credits-sig strong { color: #c9cbd2; }
+.is-night .credits-sig svg:not(.star-icon) { fill: #c9cbd2; }
 
 /* Signature — white footer bar under the scene (same as the Iran map project). */
 .credits-sig {

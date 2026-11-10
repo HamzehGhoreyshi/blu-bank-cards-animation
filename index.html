@@ -6,11 +6,86 @@
     <title>کیف کارت بلو — انیمیشن سه‌بعدی</title>
     <link rel="preload" href="/fonts/Ravi-Medium.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/toggle.css" />
   </head>
-  <body>
+  <body class="is-day preload">
     <canvas id="scene" tabindex="0" role="button" aria-pressed="false" aria-label="کیف کارت بلو — برای باز و بسته کردن کلیک کنید"></canvas>
 
     <header class="top">
+      <!-- Light/dark switch: sun = light page + black wallet (default), moon = dark page + white wallet. -->
+      <button class="toggle" type="button" role="switch" aria-checked="false" aria-label="حالت تیره">
+        <span class="pill">
+          <span class="layer sky-night"></span>
+
+          <!-- Stars: sparkles + tiny dots. Outer <g> places each star; inner .star animates.
+               --i staggers the entry, --t sets twinkle speed. -->
+          <svg class="layer stars" viewBox="0 0 530 243" aria-hidden="true">
+            <g transform="translate(70 70) scale(7)"><g class="star" style="--i:0;--t:3.2s"><path d="M0 -1 Q0.12 -0.12 1 0 Q0.12 0.12 0 1 Q-0.12 0.12 -1 0 Q-0.12 -0.12 0 -1Z"/></g></g>
+            <g transform="translate(160 92) scale(5)"><g class="star" style="--i:1;--t:2.6s"><path d="M0 -1 Q0.12 -0.12 1 0 Q0.12 0.12 0 1 Q-0.12 0.12 -1 0 Q-0.12 -0.12 0 -1Z"/></g></g>
+            <g transform="translate(232 72) scale(6)"><g class="star" style="--i:2;--t:3.8s"><path d="M0 -1 Q0.12 -0.12 1 0 Q0.12 0.12 0 1 Q-0.12 0.12 -1 0 Q-0.12 -0.12 0 -1Z"/></g></g>
+            <g transform="translate(250 160) scale(8)"><g class="star" style="--i:3;--t:3.1s"><path d="M0 -1 Q0.12 -0.12 1 0 Q0.12 0.12 0 1 Q-0.12 0.12 -1 0 Q-0.12 -0.12 0 -1Z"/></g></g>
+            <g transform="translate(120 175) scale(5)"><g class="star" style="--i:4;--t:2.9s"><path d="M0 -1 Q0.12 -0.12 1 0 Q0.12 0.12 0 1 Q-0.12 0.12 -1 0 Q-0.12 -0.12 0 -1Z"/></g></g>
+            <g transform="translate(48 130)"><g class="star" style="--i:5;--t:2.2s"><circle r="2.4"/></g></g>
+            <g transform="translate(110 40)"><g class="star" style="--i:6;--t:2.7s"><circle r="1.8"/></g></g>
+            <g transform="translate(200 130)"><g class="star" style="--i:7;--t:3.4s"><circle r="2.2"/></g></g>
+            <g transform="translate(296 108)"><g class="star" style="--i:8;--t:2.4s"><circle r="1.6"/></g></g>
+            <g transform="translate(180 205)"><g class="star" style="--i:9;--t:3s"><circle r="1.8"/></g></g>
+            <g transform="translate(82 205)"><g class="star" style="--i:10;--t:2.5s"><circle r="1.6"/></g></g>
+            <g transform="translate(288 45)"><g class="star" style="--i:11;--t:3.6s"><circle r="1.4"/></g></g>
+          </svg>
+
+          <span class="shooting"></span>
+
+          <span class="knob-track">
+            <span class="halo"></span>
+            <span class="knob">
+              <span class="sun"></span>
+              <span class="moon">
+                <span class="crater c1"></span>
+                <span class="crater c2"></span>
+                <span class="crater c3"></span>
+              </span>
+            </span>
+          </span>
+
+          <!-- Clouds: three layers, back (blue) → front (near white). Each is a cluster of circles. -->
+          <svg class="cloud cloud-1" viewBox="0 0 530 243" aria-hidden="true">
+            <g fill="var(--cloud-1)">
+              <circle cx="230" cy="232" r="42"/>
+              <circle cx="310" cy="205" r="48"/>
+              <circle cx="388" cy="172" r="54"/>
+              <circle cx="462" cy="110" r="70"/>
+              <circle cx="528" cy="48"  r="72"/>
+              <circle cx="480" cy="262" r="100"/>
+              <circle cx="540" cy="150" r="60"/>
+            </g>
+          </svg>
+          <svg class="cloud cloud-2" viewBox="0 0 530 243" aria-hidden="true">
+            <g fill="var(--cloud-2)">
+              <circle cx="180" cy="248" r="40"/>
+              <circle cx="262" cy="228" r="44"/>
+              <circle cx="345" cy="212" r="46"/>
+              <circle cx="428" cy="180" r="54"/>
+              <circle cx="505" cy="118" r="66"/>
+              <circle cx="548" cy="62"  r="58"/>
+              <circle cx="500" cy="252" r="90"/>
+            </g>
+          </svg>
+          <svg class="cloud cloud-3" viewBox="0 0 530 243" aria-hidden="true">
+            <g fill="var(--cloud-3)">
+              <circle cx="118" cy="268" r="42"/>
+              <circle cx="200" cy="254" r="42"/>
+              <circle cx="285" cy="246" r="44"/>
+              <circle cx="370" cy="238" r="46"/>
+              <circle cx="452" cy="208" r="52"/>
+              <circle cx="530" cy="150" r="66"/>
+              <circle cx="510" cy="262" r="85"/>
+            </g>
+          </svg>
+        </span>
+
+        <span class="sr-only">تغییر حالت روشن و تیره</span>
+      </button>
       <p class="hint">روی کیف پول کلیک کنید</p>
     </header>
 
@@ -30,6 +105,7 @@
       </span>
     </footer>
 
+    <script type="module" src="/src/theme.js"></script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
