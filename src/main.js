@@ -123,19 +123,23 @@ async function init() {
 
   // ---------- holder ----------
   const grain = grainTexture();
-  // Light grey felt, like the reference. Three shades: body, band, raised patch.
+  // Dark natural leather: pebbled grain (bump + slight roughness change) and a soft
+  // waxy shine, not the flat look of felt. Two shades: body and raised patch.
   const felt = (color) =>
     new THREE.MeshPhysicalMaterial({
       color,
-      roughness: 0.92,
+      roughness: 0.62,
+      roughnessMap: grain,
       metalness: 0,
-      sheen: 0.6,
-      sheenRoughness: 0.7,
+      clearcoat: 0.3,
+      clearcoatRoughness: 0.55,
+      sheen: 0.25,
+      sheenRoughness: 0.5,
       sheenColor: new THREE.Color(0xffffff),
       bumpMap: grain,
-      bumpScale: 0.7,
+      bumpScale: 2.2,
     });
-  const fabric = felt(0xbdbec2);
+  const fabric = felt(0x2f3034);
   // The band and the straps are one piece of elastic, so they share the same weave.
   const elastic = (repeat) => {
     const weave = elasticTexture(repeat);
@@ -196,7 +200,7 @@ async function init() {
     bevelSegments: 3,
     curveSegments: 10,
   });
-  const patchMaterial = felt(0xa3a4a8);
+  const patchMaterial = felt(0x26272b);
   const patch = new THREE.Mesh(patchGeometry, patchMaterial);
   patch.position.set(0, HOLDER.h * 0.05 + PATCH.h / 2, HOLDER.t / 2);
   frontHinge.add(patch);
@@ -471,9 +475,9 @@ async function init() {
     // Straps: a point at distance d up a panel sits at (y, z) below.
     const onFront = (d) => [hingeY + d * Math.cos(fa), plateZ + d * Math.sin(fa)];
     const onBack = (d) => [hingeY + d * Math.cos(ba), -plateZ - d * Math.sin(ba)];
-    // The strap meets each panel at a different angle. To keep it the same width
-    // along its whole length, the end on the back panel is cut longer or shorter
-    // to compensate for that angle.
+    // The strap leaves each panel at a slant. A slanted cut is longer than the
+    // strap is wide, so each end is cut at BAND.h / sin(angle): that keeps the
+    // strap exactly as wide as the band along its whole length.
     const [fy, fz] = onFront(STRAP_AT);
     const [by, bz] = onBack(STRAP_BACK);
     const len = Math.hypot(by - fy, bz - fz) || 1;
@@ -481,8 +485,10 @@ async function init() {
     const dz = (bz - fz) / len;
     const sinFront = Math.abs(dy * Math.sin(fa) - dz * Math.cos(fa));
     const sinBack = Math.abs(dy * -Math.sin(ba) - dz * Math.cos(ba));
-    const halfFront = BAND.h / 2;
-    const halfBack = Math.min((halfFront * sinFront) / Math.max(sinBack, 0.2), BAND.h * 1.5);
+    // When closed the strap folds flat against the panels (sin → 0), so the cut is
+    // capped there; at that point it is hidden between the panels anyway.
+    const halfFront = BAND.h / 2 / Math.max(sinFront, 0.35);
+    const halfBack = BAND.h / 2 / Math.max(sinBack, 0.35);
     const corners = [
       onFront(STRAP_AT - halfFront),
       onFront(STRAP_AT + halfFront),
