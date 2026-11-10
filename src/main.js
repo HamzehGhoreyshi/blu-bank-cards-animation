@@ -458,8 +458,16 @@ async function init() {
     // Whole object: spin once, then settle into the open pose.
     const pose = easeInOut(slice(p, 0, 0.6));
     const spin = reducedMotion ? 0 : easeInOut(slice(p, 0, 0.55)) * Math.PI * 2;
-    holder.rotation.set(lerp(0.05, 0, pose), lerp(0.5, OPEN_YAW, pose) + spin, lerp(0.1, 0, pose));
-    holder.position.set(lerp(0, -0.9, pose), lerp(1.2, -2.2, pose), 0);
+    // Idle float while closed: a slow bob and sway, like an object drifting in
+    // space, inviting a click. Fades out as the wallet opens; off for reduced motion.
+    const float = reducedMotion ? 0 : 1 - pose;
+    const t = clock.elapsedTime;
+    const bob = Math.sin(t * 1.4) * 0.28 * float;
+    const swayX = Math.sin(t * 1.1 + 0.8) * 0.04 * float;
+    const swayY = Math.sin(t * 0.8) * 0.06 * float;
+    const swayZ = Math.sin(t * 1.25 + 2.1) * 0.035 * float;
+    holder.rotation.set(lerp(0.05, 0, pose) + swayX, lerp(0.5, OPEN_YAW, pose) + spin + swayY, lerp(0.1, 0, pose) + swayZ);
+    holder.position.set(lerp(0, -0.9, pose), lerp(1.2, -2.2, pose) + bob, 0);
     const hoverTarget = hovering && !isOpen ? 1 : 0;
     hover = Math.abs(hover - hoverTarget) < 0.001 ? hoverTarget : lerp(hover, hoverTarget, 0.12);
     holder.scale.setScalar(lerp(1.2, 1, pose) * (1 + hover * 0.04));
@@ -521,7 +529,7 @@ async function init() {
       k.wrap.rotation.set(k.rest.x, k.rest.y + (1 - out) * k.spin * 4, k.rest.z);
     }
 
-    // Pointer parallax: the object leans toward the cursor. Nothing moves on its own.
+    // Pointer parallax: the object leans toward the cursor.
     if (pointerSmooth.distanceTo(pointer) < 0.0005) pointerSmooth.copy(pointer);
     else pointerSmooth.lerp(pointer, 0.06);
     root.rotation.y = pointerSmooth.x * 0.22;
@@ -529,7 +537,7 @@ async function init() {
 
     // Render only when something changed: an idle page costs no GPU work
     // (the glass cards and soft shadows are the expensive part of a frame).
-    const state = `${progress}|${hover}|${pointerSmooth.x}|${pointerSmooth.y}`;
+    const state = `${progress}|${hover}|${pointerSmooth.x}|${pointerSmooth.y}|${float ? t : 0}`;
     if (state !== lastState || needsRender) {
       renderer.render(scene, camera);
       lastState = state;
