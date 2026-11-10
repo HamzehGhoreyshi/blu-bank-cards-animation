@@ -25,7 +25,7 @@ const BLU_LOGO = {
   letters:
     'M27.4266 2.90918H30.0105V29.4027C30.0105 30.8372 28.8536 32.0001 27.4266 32.0001H24.8427V5.50658C24.8427 4.07208 25.9996 2.90918 27.4266 2.90918ZM39.3123 13.4025V23.2726C39.3123 25.4543 40.9211 27.1168 43.0331 27.1168C45.124 27.1168 46.7539 25.4541 46.7533 23.3362L46.7537 13.4025C46.7539 11.968 47.9107 10.8052 49.3377 10.8051H51.9216V23.0649C51.9216 27.9996 47.9421 31.9999 43.0331 31.9999C38.1241 31.9999 34.1446 27.9996 34.1446 23.0649V10.8051H36.7285C38.1555 10.8051 39.3123 11.968 39.3123 13.4025ZM5.20532 12.7729L5.20544 2.9098H2.62158C1.20794 2.9098 0.0377197 4.06383 0.0377197 5.5072V21.6111L0.0420235 21.6112C0.201377 27.3772 4.76578 32.0007 10.3732 32.0007C16.0813 32.0007 20.7078 27.3772 20.7086 21.2994C20.7086 21.2575 20.7084 21.2157 20.7078 21.1741C20.7083 21.1293 20.7086 21.0845 20.7086 21.0397C20.7086 15.1582 16.4514 10.3903 11.2 10.3903C8.92741 10.3903 6.84105 11.2832 5.20532 12.7729ZM4.89537 21.1436C4.89537 17.8442 7.30158 15.1695 10.2698 15.1695C13.238 15.1695 15.6442 17.8442 15.6442 21.1436C15.6442 24.4429 13.238 27.1176 10.2698 27.1176C7.30158 27.1176 4.89537 24.4429 4.89537 21.1436Z',
   dot: 'M12.4403 4.15584C13.5819 4.15584 14.5073 3.22553 14.5073 2.07792C14.5073 0.930317 13.5819 0 12.4403 0C11.2986 0 10.3732 0.930317 10.3732 2.07792C10.3732 3.22553 11.2986 4.15584 12.4403 4.15584Z',
-  // White on the dark leather (the official colours are blue #4E91E6 and dot #0C1011).
+  // White on the dark wallet (the official colours are blue #4E91E6 and dot #0C1011).
   lettersColor: '#FFFFFF',
   dotColor: '#FFFFFF',
 };
@@ -85,40 +85,19 @@ export function holderLogoTexture(aspect) {
   return toTexture(c);
 }
 
-// Pebbled grain of natural leather, used as bump and roughness map: many small
-// soft-edged bumps of random size, crowded together, plus fine pore noise.
-// Bumps that cross the tile edge are drawn on the other side too, so it tiles seamlessly.
+// Fine grain used as a bump map so the wallet reads as fabric, not plastic.
 export function grainTexture() {
-  const S = 512;
-  const [c, ctx] = makeCanvas(S, S);
-  ctx.fillStyle = '#6e6e6e';
-  ctx.fillRect(0, 0, S, S);
-  for (let i = 0; i < 1500; i++) {
-    const x = Math.random() * S;
-    const y = Math.random() * S;
-    const r = 5 + Math.random() * 9;
-    const v = 150 + Math.random() * 70;
-    for (const dx of [-S, 0, S]) {
-      for (const dy of [-S, 0, S]) {
-        const g = ctx.createRadialGradient(x + dx, y + dy, 0, x + dx, y + dy, r);
-        g.addColorStop(0, `rgb(${v},${v},${v})`);
-        g.addColorStop(0.6, `rgba(${v},${v},${v},0.6)`);
-        g.addColorStop(1, 'rgba(90,90,90,0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(x + dx - r, y + dy - r, r * 2, r * 2);
-      }
-    }
-  }
-  const img = ctx.getImageData(0, 0, S, S);
+  const [c, ctx] = makeCanvas(256, 256);
+  const img = ctx.createImageData(256, 256);
   for (let i = 0; i < img.data.length; i += 4) {
-    const n = (Math.random() - 0.5) * 22;
-    img.data[i] = img.data[i + 1] = img.data[i + 2] = Math.min(255, Math.max(0, img.data[i] + n));
+    const v = 110 + Math.random() * 90;
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+    img.data[i + 3] = 255;
   }
   ctx.putImageData(img, 0, 0);
   const t = new THREE.CanvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  // The wallet's UVs are in scene units (the panel is 10 wide), so one tile ≈ 4 units.
-  t.repeat.set(0.25, 0.25);
+  t.repeat.set(5, 7);
   return t;
 }
 

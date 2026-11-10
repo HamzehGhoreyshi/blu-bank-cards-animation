@@ -123,23 +123,19 @@ async function init() {
 
   // ---------- holder ----------
   const grain = grainTexture();
-  // Dark natural leather: pebbled grain (bump + slight roughness change) and a soft
-  // waxy shine, not the flat look of felt. Two shades: body and raised patch.
+  // Dark felt, smooth and matte. Two shades: body and raised patch.
   const felt = (color) =>
     new THREE.MeshPhysicalMaterial({
       color,
-      roughness: 0.62,
-      roughnessMap: grain,
+      roughness: 0.92,
       metalness: 0,
-      clearcoat: 0.3,
-      clearcoatRoughness: 0.55,
-      sheen: 0.25,
-      sheenRoughness: 0.5,
+      sheen: 0.6,
+      sheenRoughness: 0.7,
       sheenColor: new THREE.Color(0xffffff),
       bumpMap: grain,
-      bumpScale: 2.2,
+      bumpScale: 0.7,
     });
-  const fabric = felt(0x2f3034);
+  const fabric = felt(0x232428);
   // The band and the straps are one piece of elastic, so they share the same weave.
   const elastic = (repeat) => {
     const weave = elasticTexture(repeat);
@@ -200,7 +196,7 @@ async function init() {
     bevelSegments: 3,
     curveSegments: 10,
   });
-  const patchMaterial = felt(0x26272b);
+  const patchMaterial = felt(0x1c1d20);
   const patch = new THREE.Mesh(patchGeometry, patchMaterial);
   patch.position.set(0, HOLDER.h * 0.05 + PATCH.h / 2, HOLDER.t / 2);
   frontHinge.add(patch);
