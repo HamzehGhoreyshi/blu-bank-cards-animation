@@ -197,7 +197,7 @@ async function init() {
     bevelSegments: 3,
     curveSegments: 10,
   });
-  const patchMaterial = felt(0x0a0a0a);
+  const patchMaterial = felt(0x161616); // a touch lighter than the body
   const patch = new THREE.Mesh(patchGeometry, patchMaterial);
   patch.position.set(0, HOLDER.h * 0.05 + PATCH.h / 2, HOLDER.t / 2);
   frontHinge.add(patch);
