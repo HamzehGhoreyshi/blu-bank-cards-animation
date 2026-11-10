@@ -1,16 +1,12 @@
 # Blu Cards Wallet — 3D animation
 
-![The open Blu wallet with three Blu Junior cards fanned out](docs/screenshot.jpg)
+<img src="docs/demo.gif" width="100%" alt="The closed wallet floats, spins open, the cards rise out with a coin and a heart, then it closes again">
 
-**Live:** https://blu-bank-cards-animation.vercel.app
+🎬 [Watch the full-quality video (MP4)](docs/demo.mp4) · **Live:** https://blu-bank-cards-animation.vercel.app
 
 A 3D card wallet built with three.js. Click the wallet: it spins, opens, and fans out three Blu Junior cards. Click again to close it.
 
-<p align="center">
-  <img src="docs/demo.gif" width="80%" alt="The closed wallet floats, spins open, the cards rise out with a coin and a heart, then it closes again">
-</p>
-
-🎬 [Watch the full-quality video (MP4)](docs/demo.mp4)
+![The open Blu wallet with three Blu Junior cards fanned out](docs/screenshot.jpg)
 
 ## How it moves
 - One number, `progress`, goes from 0 (closed) to 1 (open). Every part — spin, flap, cards, strap, floating shapes — reads its pose from that number, so open and close are always in sync.
