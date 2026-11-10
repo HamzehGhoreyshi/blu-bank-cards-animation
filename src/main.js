@@ -406,15 +406,17 @@ async function init() {
 
   const raycaster = new THREE.Raycaster();
   const hits = (event) => {
+    const r = canvas.getBoundingClientRect();
     const ndc = new THREE.Vector2(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1
+      ((event.clientX - r.left) / r.width) * 2 - 1,
+      -((event.clientY - r.top) / r.height) * 2 + 1
     );
     raycaster.setFromCamera(ndc, camera);
     return raycaster.intersectObject(holder, true).length > 0;
   };
   canvas.addEventListener('pointermove', (e) => {
-    pointer.set((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
+    const r = canvas.getBoundingClientRect();
+    pointer.set(((e.clientX - r.left) / r.width) * 2 - 1, ((e.clientY - r.top) / r.height) * 2 - 1);
     hovering = hits(e);
     canvas.style.cursor = hovering ? 'pointer' : 'default';
   });
@@ -427,8 +429,9 @@ async function init() {
   });
 
   function resize() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    // The canvas fills the window above the footer bar (sized in CSS).
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     // Pull the camera back on narrow screens so the open fan still fits.
@@ -525,3 +528,12 @@ async function init() {
 }
 
 init();
+
+// Footer: show the GitHub star count only when the repo is public (it is local-only for now).
+fetch('https://api.github.com/repos/HamzehGhoreyshi/blue-bank-cards-animation')
+  .then((r) => (r.ok ? r.json() : Promise.reject()))
+  .then((repo) => {
+    document.querySelector('.star-count').textContent = `Star · ${repo.stargazers_count}`;
+    document.querySelectorAll('.credits-sig [hidden]').forEach((el) => (el.hidden = false));
+  })
+  .catch(() => {});
