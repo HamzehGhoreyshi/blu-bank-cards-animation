@@ -1,12 +1,5 @@
-/* Official Ravi v2.3 web fonts (Fontiran), same files as the Iran map project. */
-@font-face {
-  font-family: 'Ravi';
-  src: url('/fonts/Ravi-Regular.woff2') format('woff2'), url('/fonts/Ravi-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
+/* Official Ravi v2.3 web font (Fontiran), same file as the Iran map project.
+   Only Medium is used (the one line of text), so only Medium is loaded. */
 @font-face {
   font-family: 'Ravi';
   src: url('/fonts/Ravi-Medium.woff2') format('woff2'), url('/fonts/Ravi-Medium.woff') format('woff');
@@ -55,9 +48,7 @@ body {
   inset-inline: 0;
   top: 0;
   display: flex;
-  justify-content: space-between; /* hint on the right (RTL start), toggle on the left */
-  align-items: center;
-  gap: 16px;
+  justify-content: flex-start; /* the page is right-to-left, so "start" is the right side */
   padding: 28px 32px;
   pointer-events: none;
 }
@@ -68,8 +59,6 @@ body {
   font-weight: 500;
   color: var(--ink);
 }
-
-.top .toggle { order: 2; }
 
 
 /* Signature — white footer bar under the scene (same as the Iran map project). */

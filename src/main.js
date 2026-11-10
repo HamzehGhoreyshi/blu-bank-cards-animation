@@ -123,21 +123,19 @@ async function init() {
 
   // ---------- holder ----------
   const grain = grainTexture();
-  // Smooth matte felt. Two shades: body and raised patch. Colours follow the
-  // light/dark switch (see THEME below).
+  // Smooth matte white felt. Two shades: body and a touch darker raised patch.
   const felt = (color) =>
     new THREE.MeshPhysicalMaterial({
       color,
       roughness: 0.92,
       metalness: 0,
-      // A soft sheen keeps the edges readable; kept low so the colour stays near-black.
       sheen: 0.35,
       sheenRoughness: 0.7,
       sheenColor: new THREE.Color(0x8a8a8a),
       bumpMap: grain,
       bumpScale: 0.7,
     });
-  const fabric = felt(0x0a0a0a);
+  const fabric = felt(0xf0f0f0);
   // The band and the straps are one piece of elastic, so they share the same weave.
   const elastic = (repeat) => {
     const weave = elasticTexture(repeat);
@@ -198,54 +196,23 @@ async function init() {
     bevelSegments: 3,
     curveSegments: 10,
   });
-  const patchMaterial = felt(0x161616);
+  const patchMaterial = felt(0xe2e2e2);
   const patch = new THREE.Mesh(patchGeometry, patchMaterial);
   patch.position.set(0, HOLDER.h * 0.05 + PATCH.h / 2, HOLDER.t / 2);
   frontHinge.add(patch);
 
-  // Two logo prints on the patch: all-white (black wallet) and the official
-  // blue (white wallet). The theme switch cross-fades between them.
-  const logoGeometry = fitUV(new THREE.ShapeGeometry(roundedRectShape(PATCH.w, PATCH.h, PATCH.r), 10), PATCH.w, PATCH.h);
-  const logos = [true, false].map((white, i) => {
-    const decal = new THREE.Mesh(
-      logoGeometry,
-      new THREE.MeshPhysicalMaterial({
-        map: holderLogoTexture(PATCH.w / PATCH.h, white),
-        transparent: true,
-        depthWrite: false,
-        roughness: 0.6,
-        polygonOffset: true,
-        polygonOffsetFactor: -2 - i,
-      })
-    );
-    decal.position.set(0, patch.position.y, HOLDER.t / 2 + 0.056);
-    frontHinge.add(decal);
-    return decal;
-  }).map((decal) => decal.material);
-  const logoMeshes = frontHinge.children.filter((o) => logos.includes(o.material));
-
-  // Wallet colour switch. t = 0: black wallet (default). t = 1: white wallet.
-  // The page background stays light in both. The scene eases toward the target so it fades with the toggle.
-  const THEME = {
-    body: [new THREE.Color(0x0a0a0a), new THREE.Color(0xf0f0f0)],
-    patch: [new THREE.Color(0x161616), new THREE.Color(0xe2e2e2)],
-    elastic: [new THREE.Color(0x454545), new THREE.Color(0xffffff)],
-  };
-  let themeT = 0;
-  let themeTarget = 0;
-  function applyTheme(t) {
-    fabric.color.lerpColors(THEME.body[0], THEME.body[1], t);
-    patchMaterial.color.lerpColors(THEME.patch[0], THEME.patch[1], t);
-    bandMaterial.color.lerpColors(THEME.elastic[0], THEME.elastic[1], t);
-    strapMaterial.color.lerpColors(THEME.elastic[0], THEME.elastic[1], t);
-    logos[0].opacity = 1 - t;
-    logos[1].opacity = t;
-  }
-  applyTheme(0);
-  document.addEventListener('themechange', (e) => {
-    themeTarget = e.detail.dark ? 1 : 0;
-    if (reducedMotion) applyTheme((themeT = themeTarget));
-  });
+  const decal = new THREE.Mesh(
+    fitUV(new THREE.ShapeGeometry(roundedRectShape(PATCH.w, PATCH.h, PATCH.r), 10), PATCH.w, PATCH.h),
+    new THREE.MeshPhysicalMaterial({
+      map: holderLogoTexture(PATCH.w / PATCH.h),
+      transparent: true,
+      roughness: 0.6,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+    })
+  );
+  decal.position.set(0, patch.position.y, HOLDER.t / 2 + 0.056);
+  frontHinge.add(decal);
 
   // Rounded spine joining the two panels at the bottom.
   const spine = new THREE.Mesh(
@@ -415,7 +382,7 @@ async function init() {
       o.receiveShadow = true;
     }
   });
-  logoMeshes.forEach((m) => (m.castShadow = false)); // prints on the patch cast no shadow
+  decal.castShadow = false;
 
   // ---------- state + interaction ----------
   let isOpen = false;
@@ -461,7 +428,9 @@ async function init() {
     if (hits(e)) toggle();
   });
 
+  let needsRender = true;
   function resize() {
+    needsRender = true;
     // The canvas fills the window above the footer bar (sized in CSS).
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
@@ -491,7 +460,8 @@ async function init() {
     const spin = reducedMotion ? 0 : easeInOut(slice(p, 0, 0.55)) * Math.PI * 2;
     holder.rotation.set(lerp(0.05, 0, pose), lerp(0.5, OPEN_YAW, pose) + spin, lerp(0.1, 0, pose));
     holder.position.set(lerp(0, -0.9, pose), lerp(1.2, -2.2, pose), 0);
-    hover = lerp(hover, hovering && !isOpen ? 1 : 0, 0.12);
+    const hoverTarget = hovering && !isOpen ? 1 : 0;
+    hover = Math.abs(hover - hoverTarget) < 0.001 ? hoverTarget : lerp(hover, hoverTarget, 0.12);
     holder.scale.setScalar(lerp(1.2, 1, pose) * (1 + hover * 0.04));
 
     // Both panels swing apart around the bottom hinge.
@@ -518,11 +488,14 @@ async function init() {
     // capped there; at that point it is hidden between the panels anyway.
     const halfFront = BAND.h / 2 / Math.max(sinFront, 0.35);
     const halfBack = BAND.h / 2 / Math.max(sinBack, 0.35);
+    // Never let a cut run past the panel's top edge (it poked out as a sliver).
+    const top = HOLDER.h - HOLDER.r * 0.5;
+    const within = (d) => Math.min(d, top);
     const corners = [
       onFront(STRAP_AT - halfFront),
-      onFront(STRAP_AT + halfFront),
+      onFront(within(STRAP_AT + halfFront)),
       onBack(STRAP_BACK - halfBack),
-      onBack(STRAP_BACK + halfBack),
+      onBack(within(STRAP_BACK + halfBack)),
     ];
     for (const s of straps) {
       const pos = s.geometry.attributes.position;
@@ -548,21 +521,23 @@ async function init() {
       k.wrap.rotation.set(k.rest.x, k.rest.y + (1 - out) * k.spin * 4, k.rest.z);
     }
 
-    // Theme fade (~0.9 s, same as the toggle's own transition).
-    if (themeT !== themeTarget) {
-      themeT += (themeTarget - themeT) * 0.08;
-      if (Math.abs(themeTarget - themeT) < 0.002) themeT = themeTarget;
-      applyTheme(themeT);
-    }
-
     // Pointer parallax: the object leans toward the cursor. Nothing moves on its own.
-    pointerSmooth.lerp(pointer, 0.06);
+    if (pointerSmooth.distanceTo(pointer) < 0.0005) pointerSmooth.copy(pointer);
+    else pointerSmooth.lerp(pointer, 0.06);
     root.rotation.y = pointerSmooth.x * 0.22;
     root.rotation.x = pointerSmooth.y * 0.14;
 
-    renderer.render(scene, camera);
+    // Render only when something changed: an idle page costs no GPU work
+    // (the glass cards and soft shadows are the expensive part of a frame).
+    const state = `${progress}|${hover}|${pointerSmooth.x}|${pointerSmooth.y}`;
+    if (state !== lastState || needsRender) {
+      renderer.render(scene, camera);
+      lastState = state;
+      needsRender = false;
+    }
     requestAnimationFrame(frame);
   }
+  let lastState = '';
   frame();
 
   // Small handle for debugging from the console.
