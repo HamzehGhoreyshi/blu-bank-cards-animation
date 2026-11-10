@@ -529,11 +529,10 @@ async function init() {
 
 init();
 
-// Footer: show the GitHub star count only when the repo is public (it is local-only for now).
+// Footer: live GitHub star count (the button reads "Star" until this loads).
 fetch('https://api.github.com/repos/HamzehGhoreyshi/blue-bank-cards-animation')
   .then((r) => (r.ok ? r.json() : Promise.reject()))
   .then((repo) => {
     document.querySelector('.star-count').textContent = `Star · ${repo.stargazers_count}`;
-    document.querySelectorAll('.credits-sig [hidden]').forEach((el) => (el.hidden = false));
   })
   .catch(() => {});
