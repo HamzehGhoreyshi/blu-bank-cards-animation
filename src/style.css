@@ -23,7 +23,7 @@ body {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #eeeff1;
+  background: #e3e4e7;
   color: var(--ink);
   font-family: 'Ravi', system-ui, sans-serif;
 }

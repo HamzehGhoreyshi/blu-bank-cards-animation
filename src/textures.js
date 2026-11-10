@@ -104,9 +104,9 @@ export function grainTexture() {
 export function backgroundTexture() {
   const [c, ctx] = makeCanvas(1024, 1024);
   const g = ctx.createRadialGradient(512, 430, 60, 512, 512, 760);
-  g.addColorStop(0, '#fafafb');
-  g.addColorStop(0.55, '#eeeff1');
-  g.addColorStop(1, '#d9dadd');
+  g.addColorStop(0, '#f0f1f3');
+  g.addColorStop(0.55, '#e3e4e7');
+  g.addColorStop(1, '#cccdd1');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 1024, 1024);
   return toTexture(c);
@@ -118,7 +118,7 @@ export function backgroundTexture() {
 export function elasticTexture(repeat) {
   const [c, ctx] = makeCanvas(256, 256);
   const { width: w, height: h } = c;
-  ctx.fillStyle = '#96979b';
+  ctx.fillStyle = '#b4b5b9';
   ctx.fillRect(0, 0, w, h);
 
   // Ribs along the length: a light crest and a dark groove, repeated across the width.
@@ -126,10 +126,10 @@ export function elasticTexture(repeat) {
   const rib = h / ribs;
   for (let i = 0; i < ribs; i++) {
     const g = ctx.createLinearGradient(0, i * rib, 0, (i + 1) * rib);
-    g.addColorStop(0, '#6f7074');
-    g.addColorStop(0.45, '#b9babe');
-    g.addColorStop(0.75, '#a2a3a7');
-    g.addColorStop(1, '#6f7074');
+    g.addColorStop(0, '#8f9094');
+    g.addColorStop(0.45, '#d3d4d8');
+    g.addColorStop(0.75, '#c0c1c5');
+    g.addColorStop(1, '#8f9094');
     ctx.fillStyle = g;
     ctx.fillRect(0, i * rib, w, rib);
   }
@@ -137,13 +137,13 @@ export function elasticTexture(repeat) {
   // Fine cross weave: thin dark ticks, offset on every other rib like real knit.
   for (let i = 0; i < ribs; i++) {
     for (let x = (i % 2) * 4; x < w; x += 8) {
-      ctx.fillStyle = 'rgba(40,41,46,0.28)';
+      ctx.fillStyle = 'rgba(40,41,46,0.2)';
       ctx.fillRect(x, i * rib + rib * 0.15, 2, rib * 0.7);
     }
   }
 
   // Bound edges.
-  ctx.fillStyle = '#7b7c80';
+  ctx.fillStyle = '#9a9b9f';
   ctx.fillRect(0, 0, w, 5);
   ctx.fillRect(0, h - 5, w, 5);
 
